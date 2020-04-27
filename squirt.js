@@ -4,8 +4,7 @@ sq.host =  window.location.search.match('sq-dev') ?
   document.scripts[document.scripts.length - 1].src.match(/\/\/.*\//)[0]
         : '//www.squirt.io/bm/';
 
-(function(Keen){
-  Keen.addEvent('load');
+(function(){
 
   on('mousemove', function(){
     document.querySelector('.sq .modal').style.cursor = 'auto';
@@ -21,7 +20,6 @@ sq.host =  window.location.search.match('sq-dev') ?
     });
 
     function startSquirt(){
-      Keen.addEvent('start');
       showGUI();
       getText(read);
     };
@@ -81,7 +79,6 @@ sq.host =  window.location.search.match('sq-dev') ?
       on('squirt.close', function(){
         sq.closed = true;
         clearTimeout(nextNodeTimeoutId);
-        Keen.addEvent('close');
       });
 
       on('squirt.wpm.adjust', function(e){
@@ -92,7 +89,6 @@ sq.host =  window.location.search.match('sq-dev') ?
         sq.wpm = Number(e.value);
         wpm(e.value);
         dispatch('squirt.wpm.after');
-        e.notForKeen == undefined && Keen.addEvent('wpm', {'wpm': sq.wpm});
       });
 
       on('squirt.pause', pause);
@@ -111,7 +107,6 @@ sq.host =  window.location.search.match('sq-dev') ?
           incrememntNodeIdx(-1);
         }
         nextNode(true);
-        Keen.addEvent('rewind');
       });
     })();
 
@@ -119,7 +114,6 @@ sq.host =  window.location.search.match('sq-dev') ?
       sq.paused = true;
       dispatch('squirt.pause.after');
       clearTimeout(nextNodeTimeoutId);
-      Keen.addEvent('pause');
     };
 
     function play(e){
@@ -127,7 +121,6 @@ sq.host =  window.location.search.match('sq-dev') ?
       dispatch('squirt.pause.after');
       document.querySelector('.sq .wpm-selector').style.display = 'none'
       nextNode(e.jumped);
-      e.notForKeen === undefined && Keen.addEvent('play');
     };
 
     var toRender;
@@ -139,7 +132,6 @@ sq.host =  window.location.search.match('sq-dev') ?
     }
 
     function finalWord(){
-      Keen.addEvent('final-word');
       toggle(document.querySelector('.sq .reader'));
       if(window.location.hostname.match('squirt.io|localhost')){
         window.location.href = '/install.html';
@@ -205,7 +197,6 @@ sq.host =  window.location.search.match('sq-dev') ?
     };
 
     function readabilityFail(){
-        Keen.addEvent('readability-fail');
         var modal = document.querySelector('.sq .modal');
         modal.innerHTML = '<div class="error">Oops! This page is too hard for Squirt to read. We\'ve been notified, and will do our best to resolve the issue shortly.</div>';
     };
@@ -347,10 +338,6 @@ sq.host =  window.location.search.match('sq-dev') ?
     var obscure = makeDiv({class: 'sq-obscure'}, squirt);
     on(obscure, 'click', function(){
       dispatch('squirt.close');
-    });
-
-    on(window, 'orientationchange', function(){
-      Keen.addEvent('orientation-change', {'orientation': window.orientation});
     });
 
     var modal = makeDiv({'class': 'modal'}, squirt);
@@ -545,49 +532,4 @@ sq.host =  window.location.search.match('sq-dev') ?
     return (el.style.display = s.display == 'none' ? 'block' : 'none') == 'block';
   };
 
-})((function injectKeen(){
-  window.Keen=window.Keen||{configure:function(e){this._cf=e},addEvent:function(e,t,n,i){this._eq=this._eq||[],this._eq.push([e,t,n,i])},setGlobalProperties:function(e){this._gp=e},onChartsReady:function(e){this._ocrq=this._ocrq||[],this._ocrq.push(e)}};(function(){var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.src=("https:"==document.location.protocol?"https://":"http://")+"dc8na2hxrj29i.cloudfront.net/code/keen-2.1.0-min.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})();
-
-  var Keen = window.Keen;
-  var prod = {
-      projectId: "531d7ffd36bf5a1ec4000000",
-      writeKey: "9bdde746be9a9c7bca138171c98d6b7a4b4ce7f9c12dc62f0c3404ea8c7b5415a879151825b668a5682e0862374edaf46f7d6f25772f2fa6bc29aeef02310e8c376e89beffe7e3a4c5227a3aa7a40d8ce1dcde7cf28c7071b2b0e3c12f06b513c5f92fa5a9cfbc1bebaddaa7c595734d"
-  };
-  var dev = {
-    projectId: "531aa8c136bf5a0f8e000003",
-    writeKey: "a863509cd0ba1c7039d54e977520462be277d525f29e98798ae4742b963b22ede0234c467494a263bd6d6b064413c29cd984e90e6e6a4468d36fed1b04bcfce6f19f50853e37b45cb283b4d0dfc4c6e7a9a23148b1696d7ea2624f1c907abfac23a67bbbead623522552de3fedced628"
-  };
-
-  Keen.configure(sq.host.match('squirt.io') ? prod : dev);
-
-  function addon(name, input, output){
-    return { name: name, input: input, output: output};
-  }
-
-  function guid(){
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-      return v.toString(16);
-    });
-  };
-
-  Keen.setGlobalProperties(function(){
-    var props = {
-      source: "bookmarklet",
-      userId: sq.userId || 'beta-user',
-      href: window.location.href,
-      rawUserAgent: "${keen.user_agent}",
-      sessionId: 'sq-sesh-' + guid(),
-      ip: "${keen.ip}",
-      keen: { addons: [] },
-      referrer: document.referrer,
-      app_version: sq.version
-    };
-    var push = Array.prototype.push.bind(props.keen.addons);
-    push(addon("keen:ip_to_geo", { ip: "ip" }, "geo"));
-    push(addon("keen:ua_parser", { ua_string: "rawUserAgent" }, "userAgent"));
-    return props;
-  });
-
-  return Keen;
-})());
+})();
