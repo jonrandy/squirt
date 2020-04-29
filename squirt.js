@@ -1,8 +1,9 @@
 var sq = window.sq;
 sq.version = '0.0.1';
-sq.host =  window.location.search.match('sq-dev') ?
-  document.scripts[document.scripts.length - 1].src.match(/\/\/.*\//)[0]
-        : '//squirt-it.imfast.io/';
+// sq.host =  window.location.search.match('sq-dev') ?
+//   document.scripts[document.scripts.length - 1].src.match(/\/\/.*\//)[0]
+//         : '//squirt-it.imfast.io/';
+sq.host = '//squirt-it.imfast.io/';
 
 (function(){
 
@@ -22,7 +23,7 @@ sq.host =  window.location.search.match('sq-dev') ?
     function startSquirt(){
       showGUI();
       getText(read);
-    };
+    }
 
     function getText(read){
       // text source: demo
@@ -43,7 +44,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       function readabilityReady(){
         handler && document.removeEventListener('readility.ready', handler);
         read(readability.grabArticleText());
-      };
+      }
 
       if(window.readability) return readabilityReady();
 
@@ -51,7 +52,7 @@ sq.host =  window.location.search.match('sq-dev') ?
         src: sq.host + 'readability.js'
       }, document.head);
       handler = on('readability.ready', readabilityReady);
-    };
+    }
   })(makeRead(makeTextToNodes(wordToNode)), makeGUI);
 
   function makeRead(textToNodes) {
@@ -67,13 +68,13 @@ sq.host =  window.location.search.match('sq-dev') ?
       nodeIdx = Math.max(0, nodeIdx);
       prerender();
       return ret;
-    };
+    }
 
     var intervalMs, _wpm;
     function wpm(wpm){
       _wpm = wpm;
       intervalMs = 60 * 1000 / wpm ;
-    };
+    }
 
     (function readerEventHandlers(){
       on('squirt.close', function(){
@@ -114,14 +115,14 @@ sq.host =  window.location.search.match('sq-dev') ?
       sq.paused = true;
       dispatch('squirt.pause.after');
       clearTimeout(nextNodeTimeoutId);
-    };
+    }
 
     function play(e){
       sq.paused = false;
       dispatch('squirt.pause.after');
       document.querySelector('.sq .wpm-selector').style.display = 'none'
       nextNode(e.jumped);
-    };
+    }
 
     var toRender;
     function prerender(){
@@ -141,7 +142,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       }
       toggle(finalWordContainer);
       return;
-    };
+    }
 
     var delay, jumped, nextIdx;
     function nextNode(jumped) {
@@ -155,7 +156,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       lastNode.instructions && invoke(lastNode.instructions);
       if(sq.paused) return;
       nextNodeTimeoutId = setTimeout(nextNode, intervalMs * getDelay(lastNode, jumped));
-    };
+    }
 
     var waitAfterShortWord = 1.2;
     var waitAfterComma = 2;
@@ -176,7 +177,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       if(word.length < 4) return waitAfterShortWord;
       if(word.length > 11) return waitAfterLongWord;
       return 1;
-    };
+    }
 
     function showTweetButton(words, minutes){
       var html = "<div>You just read " + words + " words in " + minutes + " minutes!</div>";
@@ -190,16 +191,16 @@ sq.host =  window.location.search.match('sq-dev') ?
                + paramStr + '\"'
                + ' style=\"width:120px; height:20px;\"></iframe>';
       finalWordContainer.innerHTML = html;
-    };
+    }
 
     function showInstallLink(){
       finalWordContainer.innerHTML = "<a class='install' href='/install.html'>Install Squirt</a>";
-    };
+    }
 
     function readabilityFail(){
         var modal = document.querySelector('.sq .modal');
         modal.innerHTML = '<div class="error">Oops! This page is too hard for Squirt to read. We\'ve been notified, and will do our best to resolve the issue shortly.</div>';
-    };
+    }
 
     dispatch('squirt.wpm', {value: 400, notForKeen: true});
 
@@ -213,7 +214,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       finalWordContainer = document.querySelector('.sq .final-word');
       document.querySelector('.sq .reader').style.display = 'block';
       document.querySelector('.sq .final-word').style.display = 'none';
-    };
+    }
 
     return function read(text) {
       initDomRefs();
@@ -225,7 +226,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       prerender();
       dispatch('squirt.play');
     };
-  };
+  }
 
   function makeTextToNodes(wordToNode) {
     return function textToNodes(text) {
@@ -236,7 +237,7 @@ sq.host =  window.location.search.match('sq-dev') ?
              .filter(function(word){ return word.length; })
              .map(wordToNode);
     };
-  };
+  }
 
   var instructionsRE = /#SQ(.*)SQ#/;
   function parseSQInstructionsForWord(word, node){
@@ -252,9 +253,9 @@ sq.host =  window.location.search.match('sq-dev') ?
         });
       });
       return word.replace(instructionsRE, '');
-    };
+    }
     return word;
-  };
+  }
 
   // ORP: Optimal Recgonition Point
   function getORPIndex(word){
@@ -269,7 +270,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       (length == 2 ? 1 :
           (length == 3 ? 1 :
               Math.floor(length / 2) - 1));
-  };
+  }
 
   function wordToNode(word) {
     var node = makeDiv({'class': 'word'});
@@ -289,20 +290,20 @@ sq.host =  window.location.search.match('sq-dev') ?
     }).bind(null, node.children[orpIdx]);
 
     return node;
-  };
+  }
 
   var disableKeyboardShortcuts;
   function showGUI(){
     blur();
     document.querySelector('.sq').style.display = 'block';
     disableKeyboardShortcuts = on('keydown', handleKeypress);
-  };
+  }
 
   function hideGUI(){
     unblur();
     document.querySelector('.sq').style.display = 'none';
     disableKeyboardShortcuts && disableKeyboardShortcuts();
-  };
+  }
 
   var keyHandlers = {
       32: dispatch.bind(null, 'squirt.play.toggle'),
@@ -316,14 +317,14 @@ sq.host =  window.location.search.match('sq-dev') ?
     var handler = keyHandlers[e.keyCode];
     handler && (handler(), e.preventDefault())
     return false;
-  };
+  }
 
   function blur(){
     map(document.body.children, function(node){
       if(!node.classList.contains('sq'))
         node.classList.add('sq-blur');
     });
-  };
+  }
 
   function unblur(){
     map(document.body.children, function(node){
@@ -384,7 +385,7 @@ sq.host =  window.location.search.match('sq-dev') ?
             dispatch('squirt.play');
             wpmSelector.style.display = 'none';
           });
-        };
+        }
 
         // create the last option for the custom selector
         var plus50Opt = makeDiv({'class': 'sq wpm-option sq wpm-plus-50'}, wpmSelector);
@@ -429,7 +430,7 @@ sq.host =  window.location.search.match('sq-dev') ?
         updateIcon();
       })();
     })(controls);
-  };
+  }
 
   // utilites
 
@@ -450,7 +451,7 @@ sq.host =  window.location.search.match('sq-dev') ?
       break;
       case "undefined":
       objsAreFuncs = true;
-    };
+    }
     return map(objs, function(o){
       return objsAreFuncs ? o.apply(null, args) : o[funcName].apply(o, args);
     });
@@ -464,7 +465,7 @@ sq.host =  window.location.search.match('sq-dev') ?
     }
     parent && parent.appendChild(el);
     return el;
-  };
+  }
 
   // data binding... *cough*
   function bind(expr, data, el){
@@ -472,7 +473,7 @@ sq.host =  window.location.search.match('sq-dev') ?
     return on('squirt.els.render', function(){
       el.render();
     });
-  };
+  }
 
   function render(expr, data, el){
     var match, rendered = expr;
@@ -481,11 +482,11 @@ sq.host =  window.location.search.match('sq-dev') ?
       rendered = rendered.replace(match, val == undefined ? '' : val);
     });
     el.textContent = rendered;
-  };
+  }
 
   function makeDiv(attrs, parent){
     return makeEl('div', attrs, parent);
-  };
+  }
 
   function injectStylesheet(url, onLoad){
     var el = makeEl('link', {
@@ -496,9 +497,9 @@ sq.host =  window.location.search.match('sq-dev') ?
     function loadHandler(){
       onLoad();
       el.removeEventListener('load', loadHandler)
-    };
+    }
     onLoad && on(el, 'load', loadHandler);
-  };
+  }
 
 
   function on(bus, evts, cb){
@@ -516,7 +517,7 @@ sq.host =  window.location.search.match('sq-dev') ?
     });
     if(removers.length == 1) return removers[0];
     return removers;
-  };
+  }
 
   function dispatch(evt, attrs, dispatcher){
     var evt = new Event(evt);
@@ -525,11 +526,11 @@ sq.host =  window.location.search.match('sq-dev') ?
       evt[k] = attrs[k];
     }
     (dispatcher || document).dispatchEvent(evt);
-  };
+  }
 
   function toggle(el){
     var s = window.getComputedStyle(el);
     return (el.style.display = s.display == 'none' ? 'block' : 'none') == 'block';
-  };
+  }
 
 })();
