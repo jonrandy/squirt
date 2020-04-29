@@ -1,8 +1,5 @@
 var sq = window.sq;
 sq.version = '0.0.1';
-// sq.host =  window.location.search.match('sq-dev') ?
-//   document.scripts[document.scripts.length - 1].src.match(/\/\/.*\//)[0]
-//         : '//squirt-it.imfast.io/';
 sq.host = '//squirt-it.imfast.io/';
 
 (function(){
