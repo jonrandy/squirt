@@ -1,6 +1,5 @@
 var sq = window.sq;
 sq.version = '0.0.1';
-sq.host = '//squirt-it.imfast.io/';
 
 (function(){
 

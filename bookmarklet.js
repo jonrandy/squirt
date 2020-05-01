@@ -4,7 +4,8 @@
   } else {
     window.sq = {};
     s = document.createElement('script');
-    s.src = '//squirt-it.imfast.io/squirt.js';
+    s.host = '//squirt-it.imfast.io/';
+    s.src = s.host + 'squirt.js';
     document.body.appendChild(s);
   }
 })();
