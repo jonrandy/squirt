@@ -4,7 +4,7 @@ sq.version = '0.0.1';
 (function(){
 
   on('mousemove', function(){
-    document.querySelector('.sq .modal').style.cursor = 'auto';
+    document.querySelector('.sq .sq-modal').style.cursor = 'auto';
   });
 
   (function makeSquirt(read, makeGUI) {
@@ -194,7 +194,7 @@ sq.version = '0.0.1';
     }
 
     function readabilityFail(){
-        var modal = document.querySelector('.sq .modal');
+        var modal = document.querySelector('.sq .sq-modal');
         modal.innerHTML = '<div class="error">Oops! This page is too hard for Squirt to read. We\'ve been notified, and will do our best to resolve the issue shortly.</div>';
     }
 
@@ -337,7 +337,7 @@ sq.version = '0.0.1';
       dispatch('squirt.close');
     });
 
-    var modal = makeDiv({'class': 'modal'}, squirt);
+    var modal = makeDiv({'class': 'sq-modal'}, squirt);
 
     var controls = makeDiv({'class':'controls'}, modal);
     var reader = makeDiv({'class': 'reader'}, modal);
