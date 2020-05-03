@@ -7,11 +7,25 @@ sq.version = '0.0.1';
     document.querySelector('.sq .sq-modal').style.cursor = 'auto';
   });
 
+  const
+    URL_FONTAWESOME_CSS = sq.host + 'font-awesome.css',
+    URL_SQUIRT_CSS = sq.host + 'squirt.css',
+    URL_READABILITY_JS = sq.host + 'readability.js'
+
+    WAIT_SHORTWORD = 1.2,
+    WAIT_COMMA = 2,
+    WAIT_PERIOD = 3,
+    WAIT_PARAGRAPH = 3.5,
+    WAIT_LONGWORD = 1.5,
+
+  ;
+
+
   (function makeSquirt(read, makeGUI) {
 
     on('squirt.again', startSquirt);
-    injectStylesheet(sq.host + 'font-awesome.css');
-    injectStylesheet(sq.host + 'squirt.css', function stylesLoaded(){
+    injectStylesheet(URL_FONTAWESOME_CSS);
+    injectStylesheet(URL_SQUIRT_CSS, function stylesLoaded(){
       makeGUI();
       startSquirt();
     });
@@ -38,14 +52,14 @@ sq.version = '0.0.1';
       // text source: readability
       var handler;
       function readabilityReady(){
-        handler && document.removeEventListener('readility.ready', handler);
+        handler && document.removeEventListener('readability.ready', handler);
         read(readability.grabArticleText());
       }
 
       if(window.readability) return readabilityReady();
 
       makeEl('script', {
-        src: sq.host + 'readability.js'
+        src: URL_READABILITY_JS
       }, document.head);
       handler = on('readability.ready', readabilityReady);
     }
@@ -130,12 +144,14 @@ sq.version = '0.0.1';
 
     function finalWord(){
       toggle(document.querySelector('.sq .reader'));
+      // TODO - Remove this >>>
       if(window.location.hostname.match('squirt.io|localhost')){
         window.location.href = '/install.html';
       } else {
         showTweetButton(nodes.length,
           (nodes.length * intervalMs / 1000 / 60).toFixed(1));
       }
+      // <<<
       toggle(finalWordContainer);
       return;
     }
@@ -154,27 +170,26 @@ sq.version = '0.0.1';
       nextNodeTimeoutId = setTimeout(nextNode, intervalMs * getDelay(lastNode, jumped));
     }
 
-    var waitAfterShortWord = 1.2;
-    var waitAfterComma = 2;
-    var waitAfterPeriod = 3;
-    var waitAfterParagraph = 3.5;
-    var waitAfterLongWord = 1.5;
     function getDelay(node, jumped){
       var word = node.word;
-      if(jumped) return waitAfterPeriod;
+      if(jumped) return WAIT_PERIOD;
+
+      // TODO - improve person titles bit
       if(word == "Mr." ||
           word == "Mrs." ||
           word == "Ms.") return 1;
+
       var lastChar = word[word.length - 1];
       if(lastChar.match('”|"')) lastChar = word[word.length - 2];
-      if(lastChar == '\n') return waitAfterParagraph;
-      if('.!?'.indexOf(lastChar) != -1) return waitAfterPeriod;
-      if(',;:–'.indexOf(lastChar) != -1) return waitAfterComma;
-      if(word.length < 4) return waitAfterShortWord;
-      if(word.length > 11) return waitAfterLongWord;
+      if(lastChar == '\n') return WAIT_PARAGRAPH;
+      if('.!?'.indexOf(lastChar) != -1) return WAIT_PERIOD;
+      if(',;:–'.indexOf(lastChar) != -1) return WAIT_COMMA;
+      if(word.length < 4) return WAIT_SHORTWORD;
+      if(word.length > 11) return WAIT_LONGWORD;
       return 1;
     }
 
+    // TODO - remove this function
     function showTweetButton(words, minutes){
       var html = "<div>You just read " + words + " words in " + minutes + " minutes!</div>";
       var tweetString = "I read " + words + " words in " + minutes + " minutes without breaking a sweat&mdash;www.squirt.io turns your browser into a speed reading machine!";
@@ -189,6 +204,7 @@ sq.version = '0.0.1';
       finalWordContainer.innerHTML = html;
     }
 
+    // TODO - remove this function
     function showInstallLink(){
       finalWordContainer.innerHTML = "<a class='install' href='/install.html'>Install Squirt</a>";
     }
@@ -198,6 +214,7 @@ sq.version = '0.0.1';
         modal.innerHTML = '<div class="error">Oops! This page is too hard for Squirt to read. We\'ve been notified, and will do our best to resolve the issue shortly.</div>';
     }
 
+    // TODO - remove keen stuff
     dispatch('squirt.wpm', {value: 400, notForKeen: true});
 
     var wordContainer,
@@ -245,6 +262,7 @@ sq.version = '0.0.1';
       .map(function(instruction){
         var val = Number(instruction.split('=')[1]);
         node.instructions.push(function(){
+          // TODO remove keen stuff
           dispatch('squirt.wpm', {value: val, notForKeen: true})
         });
       });
