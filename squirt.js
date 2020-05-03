@@ -10,13 +10,13 @@ sq.version = '0.0.1';
   const
     URL_FONTAWESOME_CSS = sq.host + 'font-awesome.css',
     URL_SQUIRT_CSS = sq.host + 'squirt.css',
-    URL_READABILITY_JS = sq.host + 'readability.js'
+    URL_READABILITY_JS = sq.host + 'readability.js',
 
     WAIT_SHORTWORD = 1.2,
     WAIT_COMMA = 2,
     WAIT_PERIOD = 3,
     WAIT_PARAGRAPH = 3.5,
-    WAIT_LONGWORD = 1.5,
+    WAIT_LONGWORD = 1.5
 
   ;
 
