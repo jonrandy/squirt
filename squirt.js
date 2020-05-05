@@ -3,8 +3,10 @@ sq.version = '0.0.1';
 
 (function(){
 
+  var $ = document.querySelector;
+
   on('mousemove', function(){
-    document.querySelector('.sq .sq-modal').style.cursor = 'auto';
+    $('.sq .sq-modal').style.cursor = 'auto';
   });
 
   const
@@ -17,7 +19,6 @@ sq.version = '0.0.1';
     WAIT_PERIOD = 3,
     WAIT_PARAGRAPH = 3.5,
     WAIT_LONGWORD = 1.5
-
   ;
 
 
@@ -130,7 +131,7 @@ sq.version = '0.0.1';
     function play(e){
       sq.paused = false;
       dispatch('squirt.pause.after');
-      document.querySelector('.sq .wpm-selector').style.display = 'none'
+      $('.sq .wpm-selector').style.display = 'none'
       nextNode(e.jumped);
     }
 
@@ -143,7 +144,7 @@ sq.version = '0.0.1';
     }
 
     function finalWord(){
-      toggle(document.querySelector('.sq .reader'));
+      toggle($('.sq .reader'));
       // TODO - Remove this >>>
       if(window.location.hostname.match('squirt.io|localhost')){
         window.location.href = '/install.html';
@@ -210,7 +211,7 @@ sq.version = '0.0.1';
     }
 
     function readabilityFail(){
-        var modal = document.querySelector('.sq .sq-modal');
+        var modal = $('.sq .sq-modal');
         modal.innerHTML = '<div class="error">Oops! This page is too hard for Squirt to read. We\'ve been notified, and will do our best to resolve the issue shortly.</div>';
     }
 
@@ -221,12 +222,12 @@ sq.version = '0.0.1';
         prerenderer,
         finalWordContainer;
     function initDomRefs(){
-      wordContainer = document.querySelector('.sq .word-container');
+      wordContainer = $('.sq .word-container');
       invoke(wordContainer.querySelectorAll('.sq .word'), 'remove');
-      prerenderer = document.querySelector('.sq .word-prerenderer');
-      finalWordContainer = document.querySelector('.sq .final-word');
-      document.querySelector('.sq .reader').style.display = 'block';
-      document.querySelector('.sq .final-word').style.display = 'none';
+      prerenderer = $('.sq .word-prerenderer');
+      finalWordContainer = $('.sq .final-word');
+      $('.sq .reader').style.display = 'block';
+      $('.sq .final-word').style.display = 'none';
     }
 
     return function read(text) {
@@ -309,13 +310,13 @@ sq.version = '0.0.1';
   var disableKeyboardShortcuts;
   function showGUI(){
     blur();
-    document.querySelector('.sq').style.display = 'block';
+    $('.sq').style.display = 'block';
     disableKeyboardShortcuts = on('keydown', handleKeypress);
   }
 
   function hideGUI(){
     unblur();
-    document.querySelector('.sq').style.display = 'none';
+    $('.sq').style.display = 'none';
     disableKeyboardShortcuts && disableKeyboardShortcuts();
   }
 
