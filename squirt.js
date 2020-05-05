@@ -18,7 +18,10 @@ sq.version = '0.0.1';
     WAIT_COMMA = 2,
     WAIT_PERIOD = 3,
     WAIT_PARAGRAPH = 3.5,
-    WAIT_LONGWORD = 1.5
+    WAIT_LONGWORD = 1.5,
+    WAIT_PERSON_TITLE = 1,
+
+    PERSON_TITLES = ['Mr.', 'Mrs.', 'Ms.', 'Dr.']
   ;
 
 
@@ -145,14 +148,7 @@ sq.version = '0.0.1';
 
     function finalWord(){
       toggle($('.sq .reader'));
-      // TODO - Remove this >>>
-      if(window.location.hostname.match('squirt.io|localhost')){
-        window.location.href = '/install.html';
-      } else {
-        showTweetButton(nodes.length,
-          (nodes.length * intervalMs / 1000 / 60).toFixed(1));
-      }
-      // <<<
+      showDoneMessgae(nodes.length, (nodes.length * intervalMs / 1000 / 60).toFixed(1));
       toggle(finalWordContainer);
       return;
     }
@@ -175,10 +171,7 @@ sq.version = '0.0.1';
       var word = node.word;
       if(jumped) return WAIT_PERIOD;
 
-      // TODO - improve person titles bit
-      if(word == "Mr." ||
-          word == "Mrs." ||
-          word == "Ms.") return 1;
+      if (~PERSON_TITLES.indexOf(word)) return WAIT_PERSON_TITLE;
 
       var lastChar = word[word.length - 1];
       if(lastChar.match('”|"')) lastChar = word[word.length - 2];
@@ -190,24 +183,9 @@ sq.version = '0.0.1';
       return 1;
     }
 
-    // TODO - remove this function
-    function showTweetButton(words, minutes){
+    function showDoneMessgae(words, minutes){
       var html = "<div>You just read " + words + " words in " + minutes + " minutes!</div>";
-      var tweetString = "I read " + words + " words in " + minutes + " minutes without breaking a sweat&mdash;www.squirt.io turns your browser into a speed reading machine!";
-      var paramStr = encodeURI("url=squirt.io&user=squirtio&size=large&text=" +
-          tweetString);
-      html += '<iframe class=\"tweet-button\" '
-               + 'allowtransparency=\"true\" frameborder=\"0\"'
-               + ' scrolling=\"no\"'
-               + ' src=\"https://platform.twitter.com/widgets/tweet_button.html?'
-               + paramStr + '\"'
-               + ' style=\"width:120px; height:20px;\"></iframe>';
       finalWordContainer.innerHTML = html;
-    }
-
-    // TODO - remove this function
-    function showInstallLink(){
-      finalWordContainer.innerHTML = "<a class='install' href='/install.html'>Install Squirt</a>";
     }
 
     function readabilityFail(){
@@ -215,8 +193,7 @@ sq.version = '0.0.1';
         modal.innerHTML = '<div class="error">Oops! This page is too hard for Squirt to read. We\'ve been notified, and will do our best to resolve the issue shortly.</div>';
     }
 
-    // TODO - remove keen stuff
-    dispatch('squirt.wpm', {value: 400, notForKeen: true});
+    dispatch('squirt.wpm', {value: 400});
 
     var wordContainer,
         prerenderer,
@@ -263,8 +240,7 @@ sq.version = '0.0.1';
       .map(function(instruction){
         var val = Number(instruction.split('=')[1]);
         node.instructions.push(function(){
-          // TODO remove keen stuff
-          dispatch('squirt.wpm', {value: val, notForKeen: true})
+          dispatch('squirt.wpm', {value: val})
         });
       });
       return word.replace(instructionsRE, '');
@@ -272,7 +248,7 @@ sq.version = '0.0.1';
     return word;
   }
 
-  // ORP: Optimal Recgonition Point
+  // ORP: Optimal Recognition Point
   function getORPIndex(word){
     var length = word.length;
     var lastChar = word[word.length - 1];
