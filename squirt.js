@@ -3,7 +3,7 @@ sq.version = '0.0.1';
 
 (function(){
 
-  var $ = document.querySelector;
+  var $ = document.querySelector.bind(document);
 
   on('mousemove', function(){
     $('.sq .sq-modal').style.cursor = 'auto';
