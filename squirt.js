@@ -20,16 +20,34 @@ sq.version = '0.0.1';
     WAIT_PARAGRAPH = 3.5,
     WAIT_LONGWORD = 1.5,
     WAIT_PERSON_TITLE = 1,
+    WAIT_DEFAULT = 1,
 
-    PERSON_TITLES = ['Mr.', 'Mrs.', 'Ms.', 'Dr.']
+    PERSON_TITLES = ['Mr.', 'Mrs.', 'Ms.', 'Dr.'],
+
+    _M = (msg) => 'squirt.' + msg,
+
+    MSG = {
+      close: _M('close'),
+      play: _M('play'),
+      playToggle: _M('play.toggle'),
+      rewind: _M('rewind'),
+      pause: _M('pause'),
+      pauseAfter: _M('pause.after'),
+      again: _M('again'),
+      wpm: _M('wpm'),
+      wpmAfter: _M('wpm.after'),
+      wpmAdjust: _M('wpm.adjust'),
+      elsRender: _M('els.render'),
+      readabilityReady: 'readability.ready',
+    }
   ;
 
 
   (function makeSquirt(read, makeGUI) {
 
-    on('squirt.again', startSquirt);
+    on(MSG.again, startSquirt);
     injectStylesheet(URL_FONTAWESOME_CSS);
-    injectStylesheet(URL_SQUIRT_CSS, function stylesLoaded(){
+    injectStylesheet(URL_SQUIRT_CSS, function(){
       makeGUI();
       startSquirt();
     });
@@ -56,7 +74,7 @@ sq.version = '0.0.1';
       // text source: readability
       var handler;
       function readabilityReady(){
-        handler && document.removeEventListener('readability.ready', handler);
+        handler && document.removeEventListener(MSG.readabilityReady, handler);
         read(readability.grabArticleText());
       }
 
@@ -65,7 +83,7 @@ sq.version = '0.0.1';
       makeEl('script', {
         src: URL_READABILITY_JS
       }, document.head);
-      handler = on('readability.ready', readabilityReady);
+      handler = on(MSG.readabilityReady, readabilityReady);
     }
   })(makeRead(makeTextToNodes(wordToNode)), makeGUI);
 
@@ -91,29 +109,29 @@ sq.version = '0.0.1';
     }
 
     (function readerEventHandlers(){
-      on('squirt.close', function(){
+      on(MSG.close, function(){
         sq.closed = true;
         clearTimeout(nextNodeTimeoutId);
       });
 
-      on('squirt.wpm.adjust', function(e){
-        dispatch('squirt.wpm', {value: e.value + _wpm});
+      on(MSG.wpmAdjust, function(e){
+        dispatch(MSG.wpm, {value: e.value + _wpm});
       });
 
-      on('squirt.wpm', function(e){
+      on(MSG.wpm, function(e){
         sq.wpm = Number(e.value);
         wpm(e.value);
-        dispatch('squirt.wpm.after');
+        dispatch(MSG.wpmAfter);
       });
 
-      on('squirt.pause', pause);
-      on('squirt.play', play);
+      on(MSG.pause, pause);
+      on(MSG.play, play);
 
-      on('squirt.play.toggle', function(){
-        dispatch(sq.paused ? 'squirt.play' : 'squirt.pause');
+      on(MSG.playToggle, function(){
+        dispatch(sq.paused ? MSG.play : MSG.pause);
       });
 
-      on('squirt.rewind', function(e){
+      on(MSG.rewind, function(e){
         // Rewind by `e.value` seconds. Then walk back to the
         // beginning of the sentence.
         !sq.paused && clearTimeout(nextNodeTimeoutId);
@@ -127,14 +145,14 @@ sq.version = '0.0.1';
 
     function pause(){
       sq.paused = true;
-      dispatch('squirt.pause.after');
+      dispatch(MSG.pauseAfter);
       clearTimeout(nextNodeTimeoutId);
     }
 
     function play(e){
       sq.paused = false;
-      dispatch('squirt.pause.after');
-      $('.sq .wpm-selector').style.display = 'none'
+      dispatch(MSG.pauseAfter);
+      hide($('.sq .wpm-selector'))
       nextNode(e.jumped);
     }
 
@@ -180,7 +198,7 @@ sq.version = '0.0.1';
       if(',;:–'.indexOf(lastChar) != -1) return WAIT_COMMA;
       if(word.length < 4) return WAIT_SHORTWORD;
       if(word.length > 11) return WAIT_LONGWORD;
-      return 1;
+      return WAIT_DEFAULT;
     }
 
     function showDoneMessgae(words, minutes){
@@ -193,7 +211,7 @@ sq.version = '0.0.1';
         modal.innerHTML = '<div class="error">Oops! This page is too hard for Squirt to read. We\'ve been notified, and will do our best to resolve the issue shortly.</div>';
     }
 
-    dispatch('squirt.wpm', {value: 400});
+    dispatch(MSG.wpm, {value: 400});
 
     var wordContainer,
         prerenderer,
@@ -203,8 +221,8 @@ sq.version = '0.0.1';
       invoke(wordContainer.querySelectorAll('.sq .word'), 'remove');
       prerenderer = $('.sq .word-prerenderer');
       finalWordContainer = $('.sq .final-word');
-      $('.sq .reader').style.display = 'block';
-      $('.sq .final-word').style.display = 'none';
+      show($('.sq .reader'));
+      hide(finalWordContainer);
     }
 
     return function read(text) {
@@ -215,7 +233,7 @@ sq.version = '0.0.1';
       nodeIdx = 0;
 
       prerender();
-      dispatch('squirt.play');
+      dispatch(MSG.play);
     };
   }
 
@@ -240,7 +258,7 @@ sq.version = '0.0.1';
       .map(function(instruction){
         var val = Number(instruction.split('=')[1]);
         node.instructions.push(function(){
-          dispatch('squirt.wpm', {value: val})
+          dispatch(MSG.wpm, {value: val})
         });
       });
       return word.replace(instructionsRE, '');
@@ -286,22 +304,22 @@ sq.version = '0.0.1';
   var disableKeyboardShortcuts;
   function showGUI(){
     blur();
-    $('.sq').style.display = 'block';
+    show($('.sq'));
     disableKeyboardShortcuts = on('keydown', handleKeypress);
   }
 
   function hideGUI(){
     unblur();
-    $('.sq').style.display = 'none';
+    hide($('.sq'));
     disableKeyboardShortcuts && disableKeyboardShortcuts();
   }
 
   var keyHandlers = {
-      32: dispatch.bind(null, 'squirt.play.toggle'),
-      27: dispatch.bind(null, 'squirt.close'),
-      38: dispatch.bind(null, 'squirt.wpm.adjust', {value: 10}),
-      40: dispatch.bind(null, 'squirt.wpm.adjust', {value: -10}),
-      37: dispatch.bind(null, 'squirt.rewind', {seconds: 10})
+      32: dispatch.bind(null, MSG.playToggle),
+      27: dispatch.bind(null, MSG.close),
+      38: dispatch.bind(null, MSG.wpmAdjust, {value: 10}),
+      40: dispatch.bind(null, MSG.wpmAdjust, {value: -10}),
+      37: dispatch.bind(null, MSG.rewind, {seconds: 10})
   };
 
   function handleKeypress(e){
@@ -325,11 +343,11 @@ sq.version = '0.0.1';
 
   function makeGUI(){
     var squirt = makeDiv({class: 'sq'}, document.body);
-    squirt.style.display = 'none';
-    on('squirt.close', hideGUI);
+    hide(squirt);
+    on(MSG.close, hideGUI);
     var obscure = makeDiv({class: 'sq-obscure'}, squirt);
     on(obscure, 'click', function(){
-      dispatch('squirt.close');
+      dispatch(MSG.close);
     });
 
     var modal = makeDiv({'class': 'sq-modal'}, squirt);
@@ -352,16 +370,16 @@ sq.version = '0.0.1';
         var control = makeDiv({'class': 'sq wpm sq control'}, controls);
         var wpmLink = makeEl('a', {}, control);
         bind("{{wpm}} WPM", sq, wpmLink);
-        on('squirt.wpm.after', wpmLink.render);
+        on(MSG.wpmAfter, wpmLink.render);
         on(control, 'click', function(){
           toggle(wpmSelector) ?
-            dispatch('squirt.pause') :
-            dispatch('squirt.play');
+            dispatch(MSG.pause) :
+            dispatch(MSG.play);
         });
 
         // create the custom selector
         var wpmSelector = makeDiv({'class': 'sq wpm-selector'}, controls);
-        wpmSelector.style.display = 'none';
+        hide(wpmSelector);
         var plus50OptData = {add: 50, sign: "+"};
         var datas = [];
         for(var wpm = 200; wpm < 1000; wpm += 100){
@@ -372,9 +390,9 @@ sq.version = '0.0.1';
           datas.push(a.data);
           bind("{{wpm}}",  a.data, a);
           on(opt, 'click', function(e){
-            dispatch('squirt.wpm', {value: e.target.firstChild.data.wpm});
-            dispatch('squirt.play');
-            wpmSelector.style.display = 'none';
+            dispatch(MSG.wpm, {value: e.target.firstChild.data.wpm});
+            dispatch(MSG.play);
+            hide(wpmSelector);
           });
         }
 
@@ -389,7 +407,7 @@ sq.version = '0.0.1';
           var toggle = plus50OptData.sign == '+';
           plus50OptData.sign = toggle ? '-' : '+';
           plus50OptData.add = toggle ? 0 : 50;
-          dispatch('squirt.els.render');
+          dispatch(MSG.elsRender);
         });
         dispatch('click', {}, plus50Opt);
       })();
@@ -399,7 +417,7 @@ sq.version = '0.0.1';
         var a = makeEl('a', {}, container);
         a.href = '#';
         on(container, 'click', function(e){
-          dispatch('squirt.rewind', {seconds: 10});
+          dispatch(MSG.rewind, {seconds: 10});
           e.preventDefault();
         });
         a.innerHTML = "<i class='fa fa-backward'></i> 10s";
@@ -413,9 +431,9 @@ sq.version = '0.0.1';
         function updateIcon(){
           a.innerHTML = sq.paused ? playIcon : pauseIcon;
         }
-        on('squirt.pause.after', updateIcon);
+        on(MSG.pauseAfter, updateIcon);
         on(container, 'click', function(clickEvt){
-          dispatch('squirt.play.toggle');
+          dispatch(MSG.playToggle);
           clickEvt.preventDefault();
         });
         updateIcon();
@@ -461,7 +479,7 @@ sq.version = '0.0.1';
   // data binding... *cough*
   function bind(expr, data, el){
     el.render = render.bind(null, expr, data, el);
-    return on('squirt.els.render', function(){
+    return on(MSG.elsRender, function(){
       el.render();
     });
   }
@@ -522,6 +540,14 @@ sq.version = '0.0.1';
   function toggle(el){
     var s = window.getComputedStyle(el);
     return (el.style.display = s.display == 'none' ? 'block' : 'none') == 'block';
+  }
+
+  function show(el) {
+    el.style.display = 'block';
+  }
+
+  function hide(el) {
+    el.style.display = 'none';
   }
 
 })();
