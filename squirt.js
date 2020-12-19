@@ -1,5 +1,5 @@
 var sq = window.sq;
-sq.version = '0.0.1';
+sq.version = '0.0.2';
 
 (function(){
 
